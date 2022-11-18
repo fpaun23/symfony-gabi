@@ -8,7 +8,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CompanyController extends AbstractController
 {
-    #[Route('/company', name: 'app_company')]
+    /**
+     * @return Response
+     */
     public function show(): Response
     {
         return $this->render('company/index.html.twig');
