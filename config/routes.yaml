@@ -1,3 +1,15 @@
 controllers:
     resource: ../src/Controller/
     type: attribute
+
+company-show:
+    path: /company/show
+    controller: App\Controller\CompanyController::show
+
+contact-show:
+    path: /contact/show
+    controller: App\Controller\ContactController::show
+
+home-show:
+    path: /home/show
+    controller: App\Controller\HomeController::show
