@@ -2,9 +2,14 @@ controllers:
     resource: ../src/Controller/
     type: attribute
 
-company_show:
-    path: /company/show
-    controller: App\Controller\CompanyController::show
+company:
+  path: /company
+  controller: App\Controller\CompanyController::loadTemplate
+
+
+company_add:
+    path: /company/add
+    controller: App\Controller\CompanyController::add
 
 contact_show:
     path: /contact/show

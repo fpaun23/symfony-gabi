@@ -9,6 +9,14 @@
 </style>
 
 <div class="example-wrapper">
+
     <h1>Company</h1>
+
+    <br>
+
+    {% if form_company is defined and form_company is not null %}
+        {{ form(form_company) }}
+    {% endif %}
+
 </div>
 {% endblock %}
