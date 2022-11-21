@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 
 class CompanyController extends AbstractController
 {
-    private $log;
+    private LoggerInterface $log;
 
     public function __construct(LoggerInterface $log)
     {
@@ -21,24 +21,23 @@ class CompanyController extends AbstractController
     /**
      * @return Response
      */
-    public function loadTemplate(): Response{
-
+    public function loadTemplate(): Response
+    {
         return $this->render('company/index.html.twig');
     }
 
     /**
+     * @param Request $request
      * @return Response
      */
     public function add(Request $request): Response
     {
-
         $company = new Company();
         $form = $this->createForm(CompanyType::class, $company);
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid()) {
-
+        if ($form->isSubmitted() && $form->isValid()) {
             $company = $form->getData();
 
             $company_name = $company->getName();
