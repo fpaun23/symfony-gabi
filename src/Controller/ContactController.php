@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Contact;
+use App\Validation\DataValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,12 +13,12 @@ use Psr\Log\LoggerInterface;
 class ContactController extends AbstractController
 {
 
-    private DataValidatorContact $dataValidation;
+    private DataValidatorInterface $dataValidation;
     private $log;
 
-    public function __construct(LoggerInterface $log)
+    public function __construct(LoggerInterface $log, DataValidatorInterface $dataValidation)
     {
-        $this->dataValidation = new DataValidatorContact();
+        $this->dataValidation = $dataValidation;
         $this->log = $log;
     }
 
