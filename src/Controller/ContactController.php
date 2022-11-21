@@ -7,7 +7,6 @@ use App\Validation\DataValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use App\Validation\DataValidatorContact;
 use Psr\Log\LoggerInterface;
 
 class ContactController extends AbstractController
