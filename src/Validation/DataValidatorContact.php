@@ -5,13 +5,6 @@ use App\Constants\ConstantsContact;
 
 class DataValidatorContact implements DataValidatorInterface
 {
-    private $errorMessage;
-
-    public function __construct()
-    {
-        $this->errorMessage = '';
-    }
-
     /**
      * @param string $name
      * @return bool
@@ -19,7 +12,7 @@ class DataValidatorContact implements DataValidatorInterface
     private function nameValidation(string $name):bool
     {
 
-        if(strlen($name)<2 || strlen($name)>10)
+        if(strlen($name)<ConstantsContact::NAMEMINLENGTH || strlen($name)>ConstantsContact::NAMEMAXLENGTH)
             return false;
 
         return ctype_alpha($name);
@@ -46,7 +39,7 @@ class DataValidatorContact implements DataValidatorInterface
     private function descriptionValidation(string $description):bool
     {
 
-        if(strlen($description)<10 || strlen($description)>50)
+        if(strlen($description)<ConstantsContact::DESCMINLENGTH || strlen($description)>ConstantsContact::DESCMAXLENGTH)
             return false;
 
         return true;
@@ -56,17 +49,37 @@ class DataValidatorContact implements DataValidatorInterface
      * @param $entity
      * @return string
      */
-    public function entityValidation($entity): string
+    public function getErrors($entity): string
     {
+        $errorMessage='';
+
         if(!$this->nameValidation($entity->getName()))
-            $this->errorMessage=$this->errorMessage.ConstantsContact::NAMEERROR;
+            $errorMessage=$errorMessage.ConstantsContact::NAMEERROR;
 
         if(!$this->emailValidation($entity->getEmail()))
-            $this->errorMessage=$this->errorMessage.ConstantsContact::EMAILERROR;
+            $errorMessage=$errorMessage.ConstantsContact::EMAILERROR;
 
         if(!$this->descriptionValidation($entity->getDescription()))
-            $this->errorMessage=$this->errorMessage.ConstantsContact::DESCERROR;
+            $errorMessage=$errorMessage.ConstantsContact::DESCERROR;
 
-        return $this->errorMessage;
+        return $errorMessage;
+    }
+
+    /**
+     * @param $entity
+     * @return string
+     */
+    public function isValid($entity): bool
+    {
+        if(!$this->nameValidation($entity->getName()))
+            return false;
+
+        if(!$this->emailValidation($entity->getEmail()))
+            return false;
+
+        if(!$this->descriptionValidation($entity->getDescription()))
+            return false;
+
+        return true;
     }
 }

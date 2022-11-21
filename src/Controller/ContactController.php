@@ -41,28 +41,25 @@ class ContactController extends AbstractController
         $contact_description = $request->request->get('descriere');
 
         $contact = new Contact();
+        $contact->setName($request->request->get('name'));
+        $contact->setEmail($request->request->get('email'));
+        $contact->setDescription($request->request->get('descriere'));
 
-        $contact->setName($contact_name);
-        $contact->setEmail($contact_email);
-        $contact->setDescription($contact_description);
+        if($this->dataValidation->isValid($contact)) {
 
-        $errors = $this->dataValidation->entityValidation($contact);
-
-        if (strlen($errors) > 0)
-        {
-            return $this->render('contact/index.html.twig', [
-
-                'errors' => $errors
-            ]);
-        }
-        else
-        {
             $this->log->notice(
                 "Submission Successful",
                 [json_encode(['name' => $contact_name, 'email' => $contact_email, 'description' => $contact_description])]
             );
 
             return $this->redirectToRoute('contact');
+        }
+        else {
+
+            return $this->render('contact/index.html.twig', [
+
+                'errors' => $this->dataValidation->getErrors($contact)
+            ]);
         }
     }
 }
