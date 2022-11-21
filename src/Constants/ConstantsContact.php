@@ -4,11 +4,11 @@ namespace App\Constants;
 
 class ConstantsContact
 {
-    const NAMEMINLENGTH = 2;
-    const NAMEMAXLENGTH = 10;
-    const DESCMINLENGTH = 10;
-    const DESCMAXLENGTH = 50;
-    const NAMEERROR = "Invalid name\n";
-    const EMAILERROR = "Invalid email\n";
-    const DESCERROR = "Invalid description\n";
+    public const NAMEMINLENGTH = 2;
+    public const NAMEMAXLENGTH = 10;
+    public const DESCMINLENGTH = 10;
+    public const DESCMAXLENGTH = 50;
+    public const NAMEERROR = "Invalid name\n";
+    public const EMAILERROR = "Invalid email\n";
+    public const DESCERROR = "Invalid description\n";
 }

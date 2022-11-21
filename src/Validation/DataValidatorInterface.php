@@ -6,7 +6,7 @@ interface DataValidatorInterface
 {
     /**
      * @param $entity
-     * @return string
+     * @return bool
      */
-    public function isValid($entity):bool;
+    public function isValid($entity): bool;
 }

@@ -13,7 +13,7 @@ class ContactController extends AbstractController
 {
 
     private DataValidatorInterface $dataValidation;
-    private $log;
+    private LoggerInterface $log;
 
     public function __construct(LoggerInterface $log, DataValidatorInterface $dataValidation)
     {
@@ -45,17 +45,18 @@ class ContactController extends AbstractController
         $contact->setEmail($request->request->get('email'));
         $contact->setDescription($request->request->get('descriere'));
 
-        if($this->dataValidation->isValid($contact)) {
-
+        if ($this->dataValidation->isValid($contact)) {
             $this->log->notice(
                 "Submission Successful",
-                [json_encode(['name' => $contact_name, 'email' => $contact_email, 'description' => $contact_description])]
+                [
+                    json_encode(
+                        ['name' => $contact_name, 'email' => $contact_email, 'description' => $contact_description]
+                    )
+                ]
             );
 
             return $this->redirectToRoute('contact');
-        }
-        else {
-
+        } else {
             return $this->render('contact/index.html.twig', [
 
                 'errors' => $this->dataValidation->getErrors($contact)
