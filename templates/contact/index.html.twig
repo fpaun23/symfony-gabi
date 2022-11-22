@@ -10,27 +10,5 @@
 
 <div class="example-wrapper">
     <h1>Contact</h1>
-
-    {% if errors is defined %}
-
-        <br>
-        {{ errors }}
-
-    {% endif %}
-
-    <br>
-    <form action= "{{ path('contact_add') }}" method="post">
-        <label>Nume</label>
-        <input type="text" name = "name">
-        <br>
-        <label>Email</label>
-        <input type="email" name = "email">
-        <br>
-        <label>Descriere</label>
-        <input type="text" name = "descriere">
-        <br>
-        <input type="submit">
-    </form>
-
 </div>
 {% endblock %}

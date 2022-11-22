@@ -10,7 +10,7 @@ class HomeController extends AbstractController
     /**
      * @return Response
      */
-    public function loadTemplate(): Response
+    public function show(): Response
     {
         return $this->render('home/index.html.twig');
     }
