@@ -11,14 +11,10 @@ company_add:
     path: /company/add
     controller: App\Controller\CompanyController::add
 
-contact:
-    path: /contact
-    controller: App\Controller\ContactController::loadTemplate
+contact_show:
+    path: /contact/show
+    controller: App\Controller\ContactController::show
 
-contact_add:
-    path: /contact/add
-    controller: App\Controller\ContactController::add
-
-home:
-    path: /home
-    controller: App\Controller\HomeController::loadTemplate
+home_show:
+    path: /home/show
+    controller: App\Controller\HomeController::show
