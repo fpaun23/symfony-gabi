@@ -22,16 +22,26 @@ class Contact
     #[ORM\Column(length: 255)]
     private ?string $Description = null;
 
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return string|null
+     */
     public function getName(): ?string
     {
         return $this->Name;
     }
 
+    /**
+     * @param string $Name
+     * @return $this
+     */
     public function setName(string $Name): self
     {
         $this->Name = $Name;
@@ -39,11 +49,18 @@ class Contact
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getEmail(): ?string
     {
         return $this->Email;
     }
 
+    /**
+     * @param string $Email
+     * @return $this
+     */
     public function setEmail(string $Email): self
     {
         $this->Email = $Email;
@@ -51,11 +68,18 @@ class Contact
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getDescription(): ?string
     {
         return $this->Description;
     }
 
+    /**
+     * @param string $Description
+     * @return $this
+     */
     public function setDescription(string $Description): self
     {
         $this->Description = $Description;

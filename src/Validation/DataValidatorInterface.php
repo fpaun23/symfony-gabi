@@ -9,4 +9,9 @@ interface DataValidatorInterface
      * @return bool
      */
     public function isValid($entity): bool;
+
+    /**
+     * @return string
+     */
+    public function getErrors(): string;
 }

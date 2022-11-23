@@ -18,6 +18,7 @@ contact:
 contact_add:
     path: /contact/add
     controller: App\Controller\ContactController::add
+    methods: POST
 
 home:
     path: /home

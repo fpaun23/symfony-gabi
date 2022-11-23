@@ -6,6 +6,13 @@ use App\Constants\ConstantsContact;
 
 class DataValidatorContact implements DataValidatorInterface
 {
+    private $errorMessage;
+
+    public function __construct()
+    {
+        $this->errorMessage = '';
+    }
+
     /**
      * @param string $name
      * @return bool
@@ -51,26 +58,11 @@ class DataValidatorContact implements DataValidatorInterface
     }
 
     /**
-     * @param $entity
      * @return string
      */
-    public function getErrors($entity): string
+    public function getErrors(): string
     {
-        $errorMessage = '';
-
-        if (!$this->nameValidation($entity->getName())) {
-            $errorMessage = $errorMessage . ConstantsContact::NAMEERROR;
-        }
-
-        if (!$this->emailValidation($entity->getEmail())) {
-            $errorMessage = $errorMessage . ConstantsContact::EMAILERROR;
-        }
-
-        if (!$this->descriptionValidation($entity->getDescription())) {
-            $errorMessage = $errorMessage . ConstantsContact::DESCERROR;
-        }
-
-        return $errorMessage;
+        return $this->errorMessage;
     }
 
     /**
@@ -80,17 +72,17 @@ class DataValidatorContact implements DataValidatorInterface
     public function isValid($entity): bool
     {
         if (!$this->nameValidation($entity->getName())) {
-            return false;
+            $this->errorMessage = $this->errorMessage . ConstantsContact::NAMEERROR;
         }
 
         if (!$this->emailValidation($entity->getEmail())) {
-            return false;
+            $this->errorMessage = $this->errorMessage . ConstantsContact::EMAILERROR;
         }
 
         if (!$this->descriptionValidation($entity->getDescription())) {
-            return false;
+            $this->errorMessage = $this->errorMessage . ConstantsContact::DESCERROR;
         }
 
-        return true;
+        return strlen($this->errorMessage) > 0 ? false : true;
     }
 }

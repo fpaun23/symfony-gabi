@@ -33,24 +33,23 @@ class ContactController extends AbstractController
      * @param Request $request
      * @return Response
      */
-
     public function add(Request $request): Response
     {
-        $contact_name = $request->request->get('name');
-        $contact_email = $request->request->get('email');
-        $contact_description = $request->request->get('descriere');
+        $contactName = $request->request->get('name');
+        $contactEmail = $request->request->get('email');
+        $contactDescription = $request->request->get('descriere');
 
         $contact = new Contact();
-        $contact->setName($request->request->get('name'));
-        $contact->setEmail($request->request->get('email'));
-        $contact->setDescription($request->request->get('descriere'));
+        $contact->setName($contactName);
+        $contact->setEmail($contactEmail);
+        $contact->setDescription($contactDescription);
 
         if ($this->dataValidation->isValid($contact)) {
             $this->log->notice(
                 "Submission Successful",
                 [
                     json_encode(
-                        ['name' => $contact_name, 'email' => $contact_email, 'description' => $contact_description]
+                        ['name' => $contactName, 'email' => $contactEmail, 'description' => $contactDescription]
                     )
                 ]
             );
@@ -59,7 +58,10 @@ class ContactController extends AbstractController
         } else {
             return $this->render('contact/index.html.twig', [
 
-                'errors' => $this->dataValidation->getErrors($contact)
+                'errors' => $this->dataValidation->getErrors($contact),
+                'name' => $contactName,
+                'email' => $contactEmail,
+                'descriere' => $contactDescription
             ]);
         }
     }
