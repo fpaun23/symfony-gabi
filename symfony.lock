@@ -68,7 +68,10 @@
             "branch": "main",
             "version": "3.0",
             "ref": "0dc9cceda799fd3a08b96987e176a261028a3709"
-        }
+        },
+        "files": [
+            "./phpcs.xml.dist"
+        ]
     },
     "symfony/console": {
         "version": "6.1",

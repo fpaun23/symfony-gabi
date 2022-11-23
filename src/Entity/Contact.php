@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\CompanyRepository;
+use App\Repository\ContactRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: CompanyRepository::class)]
-class Company
+#[ORM\Entity(repositoryClass: ContactRepository::class)]
+class Contact
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -15,6 +15,9 @@ class Company
 
     #[ORM\Column(length: 255)]
     private ?string $Name = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $Email = null;
 
     #[ORM\Column(length: 255)]
     private ?string $Description = null;
@@ -42,6 +45,25 @@ class Company
     public function setName(string $Name): self
     {
         $this->Name = $Name;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEmail(): ?string
+    {
+        return $this->Email;
+    }
+
+    /**
+     * @param string $Email
+     * @return $this
+     */
+    public function setEmail(string $Email): self
+    {
+        $this->Email = $Email;
 
         return $this;
     }

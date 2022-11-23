@@ -11,10 +11,15 @@ company_add:
     path: /company/add
     controller: App\Controller\CompanyController::add
 
-contact_show:
-    path: /contact/show
-    controller: App\Controller\ContactController::show
+contact:
+    path: /contact
+    controller: App\Controller\ContactController::loadTemplate
 
-home_show:
-    path: /home/show
-    controller: App\Controller\HomeController::show
+contact_add:
+    path: /contact/add
+    controller: App\Controller\ContactController::add
+    methods: POST
+
+home:
+    path: /home
+    controller: App\Controller\HomeController::loadTemplate
