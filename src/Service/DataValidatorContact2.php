@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Validation;
+namespace App\Service;
 
 use App\Constants\ConstantsContact;
 
-class DataValidatorContact implements DataValidatorInterface
+class DataValidatorContact2 implements DataValidatorInterface
 {
     private $errorMessage;
 
