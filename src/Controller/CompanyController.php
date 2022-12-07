@@ -81,11 +81,7 @@ class CompanyController extends AbstractController
      */
     public function delete(int $id): JsonResponse
     {
-        $removedCompany = $this->companyRepository->removeById($id);
-
-        return new JsonResponse(
-            ($removedCompany != null ? "Company with id $id was removed" : "Company with id $id doesn t exist")
-        );
+        return new JsonResponse($this->companyRepository->removeById($id));
     }
 
     /**

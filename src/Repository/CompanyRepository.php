@@ -48,18 +48,18 @@ class CompanyRepository extends ServiceEntityRepository
      * @param int $id
      * @return Company|null
      */
-    public function removeById(int $id): ?Company
+    public function removeById(int $id): string
     {
         $listOfCompanies = $this->findAll();
 
         foreach ($listOfCompanies as $company) {
             if ($company->getId() == $id) {
                 $this->remove($company);
-                return $company;
+                return "Company with $id was deleted!";
             }
         }
 
-        return null;
+        return "Company with $id doesn t exist!";
     }
 
     /**
