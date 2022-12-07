@@ -54,6 +54,7 @@ class CompanyRepository extends ServiceEntityRepository
 
         foreach ($listOfCompanies as $company) {
             if ($company->getId() == $id) {
+                $this->remove($company);
                 return $company;
             }
         }
@@ -79,6 +80,58 @@ class CompanyRepository extends ServiceEntityRepository
             ->execute();
 
         return $nbUpdatedRows;
+    }
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public function getById(int $id): array
+    {
+        $queryBuilder = $this->createQueryBuilder('c');
+
+        $query = $queryBuilder
+            ->select('c.name')
+            ->where("c.id = $id")
+            ->getQuery()
+            ->getResult();
+
+        return $query;
+    }
+
+    /**
+     * @param string $name
+     * @return array
+     */
+    public function getByName(string $name): array
+    {
+        $queryBuilder = $this->createQueryBuilder('c');
+
+        $query = $queryBuilder
+            ->select('c.name')
+            ->where("c.name = $name")
+            ->getQuery()
+            ->getResult();
+
+        return $query;
+    }
+
+    /**
+     * @param string $name
+     * @return array
+     */
+    public function getByLikeName(string $name): array
+    {
+        $queryBuilder = $this->createQueryBuilder('c');
+
+        $query = $queryBuilder
+            ->select('c.name')
+            ->where('c.name LIKE :name')
+            ->setParameter('name', '%' . $name . '%')
+            ->getQuery()
+            ->getResult();
+
+        return $query;
     }
 
 //    /**

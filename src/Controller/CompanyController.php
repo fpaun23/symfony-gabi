@@ -83,10 +83,6 @@ class CompanyController extends AbstractController
     {
         $removedCompany = $this->companyRepository->removeById($id);
 
-        if ($removedCompany != null) {
-            $this->companyRepository->remove($removedCompany);
-        }
-
         return new JsonResponse(
             ($removedCompany != null ? "Company with id $id was removed" : "Company with id $id doesn t exist")
         );
@@ -98,16 +94,7 @@ class CompanyController extends AbstractController
      */
     public function companyId(int $id): JsonResponse
     {
-        $queryBuilder = $this->managerRegistry->getManager()->createQueryBuilder();
-
-        $query = $queryBuilder
-            ->select('c.name')
-            ->from(Company::class, 'c')
-            ->where("c.id = $id")
-            ->getQuery()
-            ->getResult();
-
-        return new JsonResponse($query);
+        return new JsonResponse($this->companyRepository->getById($id));
     }
 
     /**
@@ -116,16 +103,7 @@ class CompanyController extends AbstractController
      */
     public function companyName(string $name): JsonResponse
     {
-        $queryBuilder = $this->managerRegistry->getManager()->createQueryBuilder();
-
-        $query = $queryBuilder
-            ->select('c.name')
-            ->from(Company::class, 'c')
-            ->where("c.name = $name")
-            ->getQuery()
-            ->getResult();
-
-        return new JsonResponse($query);
+        return new JsonResponse($this->companyRepository->getByName($name));
     }
 
     /**
@@ -134,16 +112,6 @@ class CompanyController extends AbstractController
      */
     public function likeCompanyName(string $name): JsonResponse
     {
-        $queryBuilder = $this->managerRegistry->getManager()->createQueryBuilder();
-
-        $query = $queryBuilder
-            ->select('c.name')
-            ->from(Company::class, 'c')
-            ->where('c.name LIKE :name')
-            ->setParameter('name', '%' . $name . '%')
-            ->getQuery()
-            ->getResult();
-
-        return new JsonResponse($query);
+        return new JsonResponse($this->companyRepository->getByLikeName($name));
     }
 }
