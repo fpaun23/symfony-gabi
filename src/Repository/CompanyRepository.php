@@ -90,13 +90,13 @@ class CompanyRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('c');
 
-        $query = $queryBuilder
+        $company = $queryBuilder
             ->select('c.name')
             ->where("c.id = $id")
             ->getQuery()
             ->getResult();
 
-        return $query;
+        return $company;
     }
 
     /**
@@ -107,13 +107,13 @@ class CompanyRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('c');
 
-        $query = $queryBuilder
+        $company = $queryBuilder
             ->select('c.name')
             ->where("c.name = $name")
             ->getQuery()
             ->getResult();
 
-        return $query;
+        return $company;
     }
 
     /**
@@ -124,14 +124,14 @@ class CompanyRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('c');
 
-        $query = $queryBuilder
+        $company = $queryBuilder
             ->select('c.name')
             ->where('c.name LIKE :name')
             ->setParameter('name', '%' . $name . '%')
             ->getQuery()
             ->getResult();
 
-        return $query;
+        return $company;
     }
 
 //    /**

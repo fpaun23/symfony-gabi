@@ -12,23 +12,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class CompanyController extends AbstractController
 {
     /**
-     * @var ManagerRegistry
-     */
-    private ManagerRegistry $managerRegistry;
-
-    /**
      * @var CompanyRepository
      */
     private CompanyRepository $companyRepository;
 
     /**
      * @param CompanyRepository $companyRepository
-     * @param ManagerRegistry $managerRegistry
      */
-    public function __construct(CompanyRepository $companyRepository, ManagerRegistry $managerRegistry)
+    public function __construct(CompanyRepository $companyRepository)
     {
         $this->companyRepository = $companyRepository;
-        $this->managerRegistry = $managerRegistry;
     }
 
     /**
