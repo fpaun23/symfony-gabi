@@ -4,10 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Company;
 use App\Repository\CompanyRepository;
-use Doctrine\Persistence\ManagerRegistry;
+use App\Validators\CompanyValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Form\Exception\InvalidArgumentException;
 
 class CompanyController extends AbstractController
 {
@@ -17,11 +18,18 @@ class CompanyController extends AbstractController
     private CompanyRepository $companyRepository;
 
     /**
-     * @param CompanyRepository $companyRepository
+     * @var CompanyValidator
      */
-    public function __construct(CompanyRepository $companyRepository)
+    private CompanyValidator $companyValidator;
+
+    /**
+     * @param CompanyRepository $companyRepository
+     * @param CompanyValidator $companyValidator
+     */
+    public function __construct(CompanyRepository $companyRepository, CompanyValidator $companyValidator)
     {
         $this->companyRepository = $companyRepository;
+        $this->companyValidator = $companyValidator;
     }
 
     /**
@@ -32,12 +40,33 @@ class CompanyController extends AbstractController
     {
         $companyName = $request->get('name');
 
-        $company = new Company();
-        $company->setName($companyName);
+        try {
+            $this->companyValidator->nameIsValid($companyName);
+            $company = new Company();
+            $company->setName($companyName);
 
-        $this->companyRepository->save($company);
+            $this->companyRepository->save($company);
 
-        return new JsonResponse("Company with name $companyName was added!");
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "company" => [
+
+                        "id" => $company->getId(),
+                        "name" => $company->getName()
+                    ]
+                ]
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
     }
 
     /**
@@ -63,9 +92,33 @@ class CompanyController extends AbstractController
      */
     public function update(int $id, Request $request): JsonResponse
     {
-        $params = $request->query->all();
+        try {
+            $params = $request->query->all();
 
-        return new JsonResponse([$this->companyRepository->update($id, $params)]);
+            $this->companyValidator->idIsValid($id);
+            $this->companyValidator->nameIsValid($params['name']);
+            $this->companyRepository->update($id, $params);
+
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "company" => [
+
+                        "id" => $id,
+                        "name" => $params['name']
+                    ]
+                ]
+            ]);
+        } catch (\InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
     }
 
     /**
@@ -74,7 +127,25 @@ class CompanyController extends AbstractController
      */
     public function delete(int $id): JsonResponse
     {
-        return new JsonResponse($this->companyRepository->removeById($id));
+        try {
+            $this->companyValidator->idIsValid($id);
+
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "message" => $this->companyRepository->removeById($id)
+                ]
+            ]);
+        } catch (\InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
     }
 
     /**
@@ -83,7 +154,25 @@ class CompanyController extends AbstractController
      */
     public function companyId(int $id): JsonResponse
     {
-        return new JsonResponse($this->companyRepository->getById($id));
+        try {
+            $this->companyValidator->idIsValid($id);
+
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "company_name" => $this->companyRepository->getById($id)
+                ]
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
     }
 
     /**
@@ -92,7 +181,25 @@ class CompanyController extends AbstractController
      */
     public function companyName(string $name): JsonResponse
     {
-        return new JsonResponse($this->companyRepository->getByName($name));
+        try {
+            $this->companyValidator->nameIsValid($name);
+
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "company_name" => $this->companyRepository->getByName($name)
+                ]
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
     }
 
     /**
@@ -101,6 +208,24 @@ class CompanyController extends AbstractController
      */
     public function likeCompanyName(string $name): JsonResponse
     {
-        return new JsonResponse($this->companyRepository->getByLikeName($name));
+        try {
+            $this->companyValidator->nameIsValid($name);
+
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "company_name" => $this->companyRepository->getByLikeName($name)
+                ]
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
     }
 }
