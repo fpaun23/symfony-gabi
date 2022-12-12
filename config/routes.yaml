@@ -69,17 +69,17 @@ jobs_delete:
 
 jobs_get_by_id:
   path: /jobs/id/{id}
-  controller: App\Controller\JobController::jobsId
+  controller: App\Controller\JobController::jobId
   methods: GET
 
 jobs_get_by_name:
   path: /jobs/name/{name}
-  controller: App\Controller\JobController::jobsName
+  controller: App\Controller\JobController::jobName
   methods: GET
 
 jobs_get_by_like_name:
   path: /jobs/like/{name}
-  controller: App\Controller\JobController::likeJobsName
+  controller: App\Controller\JobController::likeJobName
   methods: GET
 
 contact:
