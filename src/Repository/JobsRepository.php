@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-use App\Entity\Company;
 use App\Entity\Jobs;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -17,23 +16,38 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class JobsRepository extends ServiceEntityRepository
 {
+    /**
+     * @param ManagerRegistry $registry
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Jobs::class);
     }
 
+    /**
+     * @param Jobs $entity
+     * @return void
+     */
     public function save(Jobs $entity): void
     {
         $this->getEntityManager()->persist($entity);
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * @param Jobs $entity
+     * @return void
+     */
     public function remove(Jobs $entity): void
     {
         $this->getEntityManager()->remove($entity);
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * @param int $id
+     * @return string
+     */
     public function removeById(int $id): string
     {
         $listOfJobs = $this->findAll();
@@ -41,13 +55,18 @@ class JobsRepository extends ServiceEntityRepository
         foreach ($listOfJobs as $job) {
             if ($job->getId() == $id) {
                 $this->remove($job);
-                return "Job with $id was deleted!";
+                return "job with $id was deleted!";
             }
         }
 
-        return "Job with $id doesn t exist!";
+        return "job with $id doesn t exist!";
     }
 
+    /**
+     * @param int $id
+     * @param array $params
+     * @return int
+     */
     public function update(int $id, array $params): int
     {
         $queryBuilder = $this->createQueryBuilder('j');
@@ -55,9 +74,11 @@ class JobsRepository extends ServiceEntityRepository
         $nbUpdatedRows = $queryBuilder->update()
             ->set('j.name', ':jobName')
             ->set('j.description', ':jobDescription')
+            ->set('j.company', ':jobCompanyId')
             ->where('j.id = :jobId')
             ->setParameter('jobName', $params['name'])
             ->setParameter('jobDescription', $params['description'])
+            ->setParameter('jobCompanyId', $params['company_id'])
             ->setParameter('jobId', $id)
             ->getQuery()
             ->execute();
@@ -65,12 +86,18 @@ class JobsRepository extends ServiceEntityRepository
         return $nbUpdatedRows;
     }
 
+    /**
+     * @param int $id
+     * @return array
+     */
     public function getById(int $id): array
     {
         $queryBuilder = $this->createQueryBuilder('j');
 
         $job = $queryBuilder
-            ->select('j.name', 'j.description')
+            ->select('j.name')
+            ->select('j.description')
+            ->select('j.createdAt')
             ->where("j.id = $id")
             ->getQuery()
             ->getResult();
@@ -78,12 +105,18 @@ class JobsRepository extends ServiceEntityRepository
         return $job;
     }
 
+    /**
+     * @param string $name
+     * @return array
+     */
     public function getByName(string $name): array
     {
         $queryBuilder = $this->createQueryBuilder('j');
 
         $job = $queryBuilder
-            ->select('j.name', 'j.description')
+            ->select('j.name')
+            ->select('j.description')
+            ->select('j.createdAt')
             ->where("j.name = $name")
             ->getQuery()
             ->getResult();
@@ -91,12 +124,18 @@ class JobsRepository extends ServiceEntityRepository
         return $job;
     }
 
+    /**
+     * @param string $name
+     * @return array
+     */
     public function getByLikeName(string $name): array
     {
         $queryBuilder = $this->createQueryBuilder('j');
 
         $job = $queryBuilder
-            ->select('j.name', 'j.description')
+            ->select('j.name')
+            ->select('j.description')
+            ->select('j.createdAt')
             ->where('j.name LIKE :name')
             ->setParameter('name', '%' . $name . '%')
             ->getQuery()

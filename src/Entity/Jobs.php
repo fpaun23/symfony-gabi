@@ -5,36 +5,31 @@ namespace App\Entity;
 use App\Repository\JobsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Jobs
- *
- * @ORM\Table(name="jobs")
- * @ORM\Entity
- */
+#[ORM\Entity(repositoryClass: JobsRepository::class)]
 class Jobs
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255, nullable=false)
-     */
-    private $name;
+    #[ORM\Column(length: 255)]
+    private ?string $name = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="description", type="string", length=255, nullable=false)
-     */
-    private $description;
+    #[ORM\Column(length: 255)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: "datetime", options: ["default" => "CURRENT_TIMESTAMP"])]
+    private ?\DateTime $createdAt = null;
+
+    #[ORM\Column(options: ["default" => 0])]
+    private ?int $active = null;
+
+    #[ORM\Column(options: ["default" => 0])]
+    private ?int $priority = null;
+
+    #[ORM\ManyToOne(inversedBy: 'jobs')]
+    private ?Company $company = null;
 
     public function getId(): ?int
     {
@@ -65,4 +60,51 @@ class Jobs
         return $this;
     }
 
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getActive(): ?int
+    {
+        return $this->active;
+    }
+
+    public function setActive(?int $active): self
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    public function getPriority(): ?int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(?int $priority): self
+    {
+        $this->priority = $priority;
+
+        return $this;
+    }
+
+    public function getCompany(): ?Company
+    {
+        return $this->company;
+    }
+
+    public function setCompany(?Company $company): self
+    {
+        $this->company = $company;
+
+        return $this;
+    }
 }

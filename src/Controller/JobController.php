@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Jobs;
+use App\Repository\CompanyRepository;
 use App\Repository\JobsRepository;
 use App\Validators\JobValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,17 +18,26 @@ class JobController extends AbstractController
      */
     private JobsRepository $jobsRepository;
     /**
+     * @var CompanyRepository
+     */
+    private CompanyRepository $companyRepository;
+    /**
      * @var JobValidator
      */
     private JobValidator $jobValidator;
 
     /**
      * @param JobsRepository $jobsRepository
+     * @param CompanyRepository $companyRepository
      * @param JobValidator $jobValidator
      */
-    public function __construct(JobsRepository $jobsRepository, JobValidator $jobValidator)
-    {
+    public function __construct(
+        JobsRepository $jobsRepository,
+        CompanyRepository $companyRepository,
+        JobValidator $jobValidator
+    ) {
         $this->jobsRepository = $jobsRepository;
+        $this->companyRepository = $companyRepository;
         $this->jobValidator = $jobValidator;
     }
 
@@ -37,15 +47,26 @@ class JobController extends AbstractController
      */
     public function add(Request $request): JsonResponse
     {
+        $companyId = $request->get('company_id');
         $jobName = $request->get('name');
         $jobDescription = $request->get('description');
+        $jobCreatedAt = new \DateTime("now");
+        $jobActive = 0;
+        $jobPriority = 0;
+
+        $company = $this->companyRepository->find($companyId);
 
         try {
             $this->jobValidator->nameIsValid($jobName);
             $this->jobValidator->descriptionIsValid($jobDescription);
+            $this->jobValidator->companyIsValid($company);
             $job = new Jobs();
             $job->setName($jobName);
             $job->setDescription($jobDescription);
+            $job->setCreatedAt($jobCreatedAt);
+            $job->setActive($jobActive);
+            $job->setPriority($jobPriority);
+            $job->setCompany($company);
 
             $this->jobsRepository->save($job);
 
@@ -57,7 +78,8 @@ class JobController extends AbstractController
 
                         "id" => $job->getId(),
                         "name" => $job->getName(),
-                        "description" => $job->getDescription()
+                        "description" => $job->getDescription(),
+                        "created_at" => $job->getCreatedAt()
                     ]
                 ]
             ]);
@@ -99,6 +121,7 @@ class JobController extends AbstractController
             $params = $request->query->all();
 
             $this->jobValidator->idIsValid($id);
+            $this->jobValidator->companyIsValid($this->companyRepository->find($params['company_id']));
             $this->jobValidator->nameIsValid($params['name']);
             $this->jobValidator->descriptionIsValid($params['description']);
             $this->jobsRepository->update($id, $params);
@@ -115,7 +138,7 @@ class JobController extends AbstractController
                     ]
                 ]
             ]);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             return new JsonResponse([
                 'results' => [
 
@@ -142,7 +165,7 @@ class JobController extends AbstractController
                     "message" => $this->jobsRepository->removeById($id)
                 ]
             ]);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             return new JsonResponse([
                 'results' => [
 

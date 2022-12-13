@@ -2,6 +2,7 @@
 
 namespace App\Validators;
 
+use App\Entity\Company;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
 
 class JobValidator
@@ -25,6 +26,13 @@ class JobValidator
     {
         if ($name == null || strlen($name) < 2) {
             throw new InvalidArgumentException("Description is invalid!");
+        }
+    }
+
+    public function companyIsValid(?Company $company): void
+    {
+        if ($company == null) {
+            throw new InvalidArgumentException("Company is invalid!");
         }
     }
 }
