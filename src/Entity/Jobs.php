@@ -28,7 +28,7 @@ class Jobs
     #[ORM\Column(options: ["default" => 0])]
     private ?int $priority = null;
 
-    #[ORM\ManyToOne(inversedBy: 'jobs')]
+    #[ORM\ManyToOne(inversedBy: 'jobs', cascade: ["persist", "remove"])]
     private ?Company $company = null;
 
     public function getId(): ?int
