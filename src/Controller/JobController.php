@@ -154,6 +154,7 @@ class JobController extends AbstractController
             $params = $request->query->all();
 
             $this->jobValidator->idIsValid($id);
+            $this->jobValidator->paramsIsValid($params);
             $this->jobValidator->companyIsValid($this->companyRepository->find($params['company_id']));
             $this->jobValidator->nameIsValid($params['name']);
             $this->jobValidator->descriptionIsValid($params['description']);
@@ -167,7 +168,9 @@ class JobController extends AbstractController
 
                         "id" => $id,
                         "name" => $params['name'],
-                        "description" => $params['description']
+                        "description" => $params['description'],
+                        "active" => $params['active'],
+                        "priority" => $params['priority']
                     ]
                 ]
             ]);
@@ -193,7 +196,7 @@ class JobController extends AbstractController
 
             $deletedJob = $this->jobsRepository->find($id);
 
-            if ($deletedJob == null) {
+            if ($deletedJob === null) {
                 throw new InvalidArgumentException("Job with $id doesn t exist");
             }
 

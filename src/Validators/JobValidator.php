@@ -35,4 +35,17 @@ class JobValidator
             throw new InvalidArgumentException("Company is invalid!");
         }
     }
+
+    public function paramsIsValid(array $params): void
+    {
+        if (
+            !array_key_exists('name', $params) ||
+            !array_key_exists('description', $params) ||
+            !array_key_exists('company_id', $params) ||
+            !array_key_exists('active', $params) ||
+            !array_key_exists('priority', $params)
+        ) {
+            throw new InvalidArgumentException("Invalid paramters");
+        }
+    }
 }
