@@ -51,8 +51,8 @@ class JobController extends AbstractController
         $jobName = $request->get('name');
         $jobDescription = $request->get('description');
         $jobCreatedAt = new \DateTime("now");
-        $jobActive = 0;
-        $jobPriority = 0;
+        $jobActive = $request->get('active');
+        $jobPriority = $request->get('priority');
 
         $company = $this->companyRepository->find($companyId);
 
@@ -60,7 +60,9 @@ class JobController extends AbstractController
             $this->jobValidator->nameIsValid($jobName);
             $this->jobValidator->descriptionIsValid($jobDescription);
             $this->jobValidator->companyIsValid($company);
+
             $job = new Jobs();
+
             $job->setName($jobName);
             $job->setDescription($jobDescription);
             $job->setCreatedAt($jobCreatedAt);
@@ -79,7 +81,14 @@ class JobController extends AbstractController
                         "id" => $job->getId(),
                         "name" => $job->getName(),
                         "description" => $job->getDescription(),
-                        "created_at" => $job->getCreatedAt()
+                        "created_at" => $job->getCreatedAt(),
+                        "company" => [
+
+                            "id" => $job->getCompany()->getId(),
+                            "name" => $job->getCompany()->getName()
+                        ],
+                        "active" => $job->getActive(),
+                        "priority" => $job->getPriority()
                     ]
                 ]
             ]);
@@ -94,6 +103,30 @@ class JobController extends AbstractController
         }
     }
 
+    public function getResultOfJobs($listOfJobs): array
+    {
+        $jobs = [];
+
+        foreach ($listOfJobs as $job) {
+            $jobs[] = [
+
+                "id" => $job->getId(),
+                "name" => $job->getName(),
+                "description" => $job->getDescription(),
+                "created_at" => $job->getCreatedAt(),
+                "company" => [
+
+                    "id" => $job->getCompany()->getId(),
+                    "name" => $job->getCompany()->getName()
+                ],
+                "active" => $job->getActive(),
+                "priority" => $job->getPriority()
+            ];
+        }
+
+        return $jobs;
+    }
+
     /**
      * @return JsonResponse
      */
@@ -101,13 +134,13 @@ class JobController extends AbstractController
     {
         $listOfJobs = $this->jobsRepository->findAll();
 
-        $listOfNamesJobs = [];
+        return new JsonResponse([
+            'results' => [
 
-        foreach ($listOfJobs as $job) {
-            $listOfNamesJobs[] = $job->getName();
-        }
-
-        return new JsonResponse(['list_of_jobs' => $listOfNamesJobs]);
+                "error" => false,
+                "jobs" => $this->getResultOfJobs($listOfJobs)
+            ]
+        ]);
     }
 
     /**
@@ -158,11 +191,33 @@ class JobController extends AbstractController
         try {
             $this->jobValidator->idIsValid($id);
 
+            $deletedJob = $this->jobsRepository->find($id);
+
+            if ($deletedJob == null) {
+                throw new InvalidArgumentException("Job with $id doesn t exist");
+            }
+
+
+            $jobId = $deletedJob->getId();
+            $companyId = $deletedJob->getCompany()->getId();
+
+            $this->jobsRepository->remove($deletedJob);
+
             return new JsonResponse([
                 'results' => [
 
                     "error" => false,
-                    "message" => $this->jobsRepository->removeById($id)
+                    "id" => $jobId,
+                    "name" => $deletedJob->getName(),
+                    "description" => $deletedJob->getDescription(),
+                    "created_at" => $deletedJob->getCreatedAt(),
+                    "company" => [
+
+                        "id" => $companyId,
+                        "name" => $deletedJob->getCompany()->getName()
+                    ],
+                    "active" => $deletedJob->getActive(),
+                    "priority" => $deletedJob->getPriority()
                 ]
             ]);
         } catch (InvalidArgumentException $exception) {
@@ -180,16 +235,21 @@ class JobController extends AbstractController
      * @param int $id
      * @return JsonResponse
      */
-    public function jobId(int $id): JsonResponse
+    public function getJobById(int $id): JsonResponse
     {
         try {
             $this->jobValidator->idIsValid($id);
+            $listOfJobs = $this->jobsRepository->getById($id);
+
+            if (!sizeof($listOfJobs)) {
+                throw new InvalidArgumentException("Job with $id doesn t exist");
+            }
 
             return new JsonResponse([
                 'results' => [
 
                     "error" => false,
-                    "job" => $this->jobsRepository->getById($id)
+                    "jobs" => $this->getResultOfJobs($listOfJobs)
                 ]
             ]);
         } catch (InvalidArgumentException $exception) {
@@ -207,16 +267,21 @@ class JobController extends AbstractController
      * @param string $name
      * @return JsonResponse
      */
-    public function jobName(string $name): JsonResponse
+    public function getJobByName(string $name): JsonResponse
     {
         try {
             $this->jobValidator->nameIsValid($name);
+            $listOfJobs = $this->jobsRepository->getByName($name);
+
+            if (!sizeof($listOfJobs)) {
+                throw new InvalidArgumentException("Job with $name doesn t exist");
+            }
 
             return new JsonResponse([
                 'results' => [
 
                     "error" => false,
-                    "job" => $this->jobsRepository->getByName($name)
+                    "jobs" => $this->getResultOfJobs($listOfJobs)
                 ]
             ]);
         } catch (InvalidArgumentException $exception) {
@@ -234,16 +299,21 @@ class JobController extends AbstractController
      * @param string $name
      * @return JsonResponse
      */
-    public function likejobName(string $name): JsonResponse
+    public function getJobByLikeName(string $name): JsonResponse
     {
         try {
             $this->jobValidator->nameIsValid($name);
+            $listOfJobs = $this->jobsRepository->getByLikeName($name);
+
+            if (!sizeof($listOfJobs)) {
+                throw new InvalidArgumentException("Job with have $name in name doesn t exist");
+            }
 
             return new JsonResponse([
                 'results' => [
 
                     "error" => false,
-                    "job" => $this->jobsRepository->getByLikeName($name)
+                    "jobs" => $this->getResultOfJobs($listOfJobs)
                 ]
             ]);
         } catch (InvalidArgumentException $exception) {

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Jobs;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use http\Exception\InvalidArgumentException;
 
 /**
  * @extends ServiceEntityRepository<Jobs>
@@ -46,24 +47,6 @@ class JobsRepository extends ServiceEntityRepository
 
     /**
      * @param int $id
-     * @return string
-     */
-    public function removeById(int $id): string
-    {
-        $listOfJobs = $this->findAll();
-
-        foreach ($listOfJobs as $job) {
-            if ($job->getId() == $id) {
-                $this->remove($job);
-                return "job with $id was deleted!";
-            }
-        }
-
-        return "job with $id doesn t exist!";
-    }
-
-    /**
-     * @param int $id
      * @param array $params
      * @return int
      */
@@ -95,10 +78,8 @@ class JobsRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('j');
 
         $job = $queryBuilder
-            ->select('j.name')
-            ->select('j.description')
-            ->select('j.createdAt')
-            ->where("j.id = $id")
+            ->where("j.id = :jobId")
+            ->setParameter('jobId', $id)
             ->getQuery()
             ->getResult();
 
@@ -114,10 +95,8 @@ class JobsRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('j');
 
         $job = $queryBuilder
-            ->select('j.name')
-            ->select('j.description')
-            ->select('j.createdAt')
-            ->where("j.name = $name")
+            ->where("j.name = :jobName")
+            ->setParameter('jobName', $name)
             ->getQuery()
             ->getResult();
 
@@ -133,9 +112,6 @@ class JobsRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('j');
 
         $job = $queryBuilder
-            ->select('j.name')
-            ->select('j.description')
-            ->select('j.createdAt')
             ->where('j.name LIKE :name')
             ->setParameter('name', '%' . $name . '%')
             ->getQuery()

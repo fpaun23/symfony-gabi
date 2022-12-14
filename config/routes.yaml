@@ -29,17 +29,17 @@ company_delete:
 
 company_get_by_id:
   path: /company/id/{id}
-  controller: App\Controller\CompanyController::companyId
+  controller: App\Controller\CompanyController::getCompanyById
   methods: GET
 
 company_get_by_name:
   path: /company/name/{name}
-  controller: App\Controller\CompanyController::companyName
+  controller: App\Controller\CompanyController::getCompanyByName
   methods: GET
 
 company_get_by_like_name:
   path: /company/like/{name}
-  controller: App\Controller\CompanyController::likeCompanyName
+  controller: App\Controller\CompanyController::getCompanyByLikeName
   methods: GET
 
 jobs:
@@ -69,17 +69,17 @@ jobs_delete:
 
 jobs_get_by_id:
   path: /jobs/id/{id}
-  controller: App\Controller\JobController::jobId
+  controller: App\Controller\JobController::getJobById
   methods: GET
 
 jobs_get_by_name:
   path: /jobs/name/{name}
-  controller: App\Controller\JobController::jobName
+  controller: App\Controller\JobController::getJobByName
   methods: GET
 
 jobs_get_by_like_name:
   path: /jobs/like/{name}
-  controller: App\Controller\JobController::likeJobName
+  controller: App\Controller\JobController::getJobByLikeName
   methods: GET
 
 contact:
