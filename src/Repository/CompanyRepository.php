@@ -46,7 +46,7 @@ class CompanyRepository extends ServiceEntityRepository
 
     /**
      * @param int $id
-     * @return Company|null
+     * @return string
      */
     public function removeById(int $id): string
     {

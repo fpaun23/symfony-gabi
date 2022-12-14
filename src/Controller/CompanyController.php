@@ -130,11 +130,25 @@ class CompanyController extends AbstractController
         try {
             $this->companyValidator->idIsValid($id);
 
+            $deletedCompany = $this->companyRepository->find($id);
+
+            if ($deletedCompany == null) {
+                throw new InvalidArgumentException("Company with $id doesn t exist");
+            }
+
+            $companyId = $deletedCompany->getId();
+
+            $this->companyRepository->remove($deletedCompany);
+
             return new JsonResponse([
                 'results' => [
 
                     "error" => false,
-                    "message" => $this->companyRepository->removeById($id)
+                    "company" => [
+
+                        "id" => $companyId,
+                        "name" => $deletedCompany->getName()
+                    ]
                 ]
             ]);
         } catch (\InvalidArgumentException $exception) {
@@ -152,7 +166,7 @@ class CompanyController extends AbstractController
      * @param int $id
      * @return JsonResponse
      */
-    public function companyId(int $id): JsonResponse
+    public function getCompanyById(int $id): JsonResponse
     {
         try {
             $this->companyValidator->idIsValid($id);
@@ -179,7 +193,7 @@ class CompanyController extends AbstractController
      * @param string $name
      * @return JsonResponse
      */
-    public function companyName(string $name): JsonResponse
+    public function getCompanyByName(string $name): JsonResponse
     {
         try {
             $this->companyValidator->nameIsValid($name);
@@ -206,7 +220,7 @@ class CompanyController extends AbstractController
      * @param string $name
      * @return JsonResponse
      */
-    public function likeCompanyName(string $name): JsonResponse
+    public function getCompanyByLikeName(string $name): JsonResponse
     {
         try {
             $this->companyValidator->nameIsValid($name);

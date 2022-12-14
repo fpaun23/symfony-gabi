@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Jobs;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use http\Exception\InvalidArgumentException;
 
 /**
  * @extends ServiceEntityRepository<Jobs>
@@ -16,27 +17,111 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class JobsRepository extends ServiceEntityRepository
 {
+    /**
+     * @param ManagerRegistry $registry
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Jobs::class);
     }
 
-    public function save(Jobs $entity, bool $flush = false): void
+    /**
+     * @param Jobs $entity
+     * @return void
+     */
+    public function save(Jobs $entity): void
     {
         $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        $this->getEntityManager()->flush();
     }
 
-    public function remove(Jobs $entity, bool $flush = false): void
+    /**
+     * @param Jobs $entity
+     * @return void
+     */
+    public function remove(Jobs $entity): void
     {
         $this->getEntityManager()->remove($entity);
+        $this->getEntityManager()->flush();
+    }
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+    /**
+     * @param int $id
+     * @param array $params
+     * @return int
+     */
+    public function update(int $id, array $params): int
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $nbUpdatedRows = $queryBuilder->update()
+            ->set('j.name', ':jobName')
+            ->set('j.description', ':jobDescription')
+            ->set('j.company', ':jobCompanyId')
+            ->set('j.active', ':jobActive')
+            ->set('j.priority', ':jobPriority')
+            ->where('j.id = :jobId')
+            ->setParameter('jobName', $params['name'])
+            ->setParameter('jobDescription', $params['description'])
+            ->setParameter('jobCompanyId', $params['company_id'])
+            ->setParameter('jobActive', $params['active'])
+            ->setParameter('jobPriority', $params['priority'])
+            ->setParameter('jobId', $id)
+            ->getQuery()
+            ->execute();
+
+        return $nbUpdatedRows;
+    }
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public function getById(int $id): array
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $job = $queryBuilder
+            ->where("j.id = :jobId")
+            ->setParameter('jobId', $id)
+            ->getQuery()
+            ->getResult();
+
+        return $job;
+    }
+
+    /**
+     * @param string $name
+     * @return array
+     */
+    public function getByName(string $name): array
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $job = $queryBuilder
+            ->where("j.name = :jobName")
+            ->setParameter('jobName', $name)
+            ->getQuery()
+            ->getResult();
+
+        return $job;
+    }
+
+    /**
+     * @param string $name
+     * @return array
+     */
+    public function getByLikeName(string $name): array
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $job = $queryBuilder
+            ->where('j.name LIKE :name')
+            ->setParameter('name', '%' . $name . '%')
+            ->getQuery()
+            ->getResult();
+
+        return $job;
     }
 
 //    /**

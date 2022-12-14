@@ -29,17 +29,57 @@ company_delete:
 
 company_get_by_id:
   path: /company/id/{id}
-  controller: App\Controller\CompanyController::companyId
+  controller: App\Controller\CompanyController::getCompanyById
   methods: GET
 
 company_get_by_name:
   path: /company/name/{name}
-  controller: App\Controller\CompanyController::companyName
+  controller: App\Controller\CompanyController::getCompanyByName
   methods: GET
 
 company_get_by_like_name:
   path: /company/like/{name}
-  controller: App\Controller\CompanyController::likeCompanyName
+  controller: App\Controller\CompanyController::getCompanyByLikeName
+  methods: GET
+
+jobs:
+  path: /jobs
+  controller: App\Controller\JobController::loadTemplate
+
+
+jobs_add:
+  path: /jobs/add
+  controller: App\Controller\JobController::add
+  methods: POST
+
+jobs_list:
+  path: /jobs/list
+  controller: App\Controller\JobController::list
+  methods: GET
+
+jobs_update:
+  path: /jobs/update/{id}
+  controller: App\Controller\JobController::update
+  methods: PUT
+
+jobs_delete:
+  path: /jobs/delete/{id}
+  controller: App\Controller\JobController::delete
+  methods: DELETE
+
+jobs_get_by_id:
+  path: /jobs/id/{id}
+  controller: App\Controller\JobController::getJobById
+  methods: GET
+
+jobs_get_by_name:
+  path: /jobs/name/{name}
+  controller: App\Controller\JobController::getJobByName
+  methods: GET
+
+jobs_get_by_like_name:
+  path: /jobs/like/{name}
+  controller: App\Controller\JobController::getJobByLikeName
   methods: GET
 
 contact:
