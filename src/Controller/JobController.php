@@ -150,11 +150,20 @@ class JobController extends AbstractController
      */
     public function update(int $id, Request $request): JsonResponse
     {
-        try {
-            $params = $request->query->all();
+        $params = $request->query->all();
 
+        if (!$this->jobValidator->paramsIsValid($params)) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => "Invalid params"
+                ]
+            ]);
+        }
+
+        try {
             $this->jobValidator->idIsValid($id);
-            $this->jobValidator->paramsIsValid($params);
             $this->jobValidator->companyIsValid($this->companyRepository->find($params['company_id']));
             $this->jobValidator->nameIsValid($params['name']);
             $this->jobValidator->descriptionIsValid($params['description']);
@@ -199,7 +208,6 @@ class JobController extends AbstractController
             if ($deletedJob === null) {
                 throw new InvalidArgumentException("Job with $id doesn t exist");
             }
-
 
             $jobId = $deletedJob->getId();
             $companyId = $deletedJob->getCompany()->getId();

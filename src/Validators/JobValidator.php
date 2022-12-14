@@ -36,7 +36,7 @@ class JobValidator
         }
     }
 
-    public function paramsIsValid(array $params): void
+    public function paramsIsValid(array $params): bool
     {
         if (
             !array_key_exists('name', $params) ||
@@ -45,7 +45,19 @@ class JobValidator
             !array_key_exists('active', $params) ||
             !array_key_exists('priority', $params)
         ) {
-            throw new InvalidArgumentException("Invalid paramters");
+            return false;
         }
+
+        if (
+            $params['name'] === '' ||
+            $params['description'] === '' ||
+            $params['company_id'] === '' ||
+            $params['active'] === '' ||
+            $params['priority'] === ''
+        ) {
+            return false;
+        }
+
+        return true;
     }
 }
