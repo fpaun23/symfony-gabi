@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Entity\Jobs;
 use SimpleExcel\SimpleExcel;
 
 class FileReaderExcell implements FileReaderInterface
@@ -11,7 +10,7 @@ class FileReaderExcell implements FileReaderInterface
 
     public function __construct()
     {
-        $file_path = "../src/Controller/test.csv";
+        $file_path = "../src/Service/test.csv";
         $this->excel = new SimpleExcel('csv');
         $this->excel->parser->loadFile($file_path);
     }
@@ -48,8 +47,6 @@ class FileReaderExcell implements FileReaderInterface
     {
         $numberOfParams = $this->getNumberOfFirstRowCells();
         $numberOfJobs = $this->getNumberOfExcelRows();
-
-        echo $numberOfParams . " " . $numberOfJobs;
 
         $jobs = [];
 
