@@ -1,22 +1,21 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\File;
 
+use App\Constants\JobsConstants;
 use SimpleExcel\SimpleExcel;
+use Symfony\Component\Form\Exception\InvalidArgumentException;
 
 class FileReaderExcell implements FileReaderInterface
 {
-    private $excel;
+    private SimpleExcel $excel;
 
     public function __construct()
     {
-        $file_path = "../src/Service/test.csv";
         $this->excel = new SimpleExcel('csv');
-        $this->excel->parser->loadFile($file_path);
     }
 
     /**
-     * @param $excel
      * @return int
      */
     private function getNumberOfExcelRows(): int
@@ -30,11 +29,6 @@ class FileReaderExcell implements FileReaderInterface
         return $row;
     }
 
-    private function getNumberOfFirstRowCells(): int
-    {
-        return sizeof($this->excel->parser->getRow(1));
-    }
-
     private function getRowArray($row)
     {
         return $this->excel->parser->getRow($row);
@@ -45,7 +39,12 @@ class FileReaderExcell implements FileReaderInterface
      */
     public function getData(): array
     {
-        $numberOfParams = $this->getNumberOfFirstRowCells();
+        if (!file_exists(JobsConstants::FILE_PATH)) {
+            throw new InvalidArgumentException("File does not exist");
+        }
+
+        $this->excel->parser->loadFile(JobsConstants::FILE_PATH);
+
         $numberOfJobs = $this->getNumberOfExcelRows();
 
         $jobs = [];

@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\Jobs;
 use App\Repository\CompanyRepository;
 use App\Repository\JobsRepository;
-use App\Service\FileReaderInterface;
+use App\Service\Jobs\JobsService;
 use App\Validators\JobValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
@@ -33,23 +33,27 @@ class JobController extends AbstractController
      * @param JobValidator $jobValidator
      */
 
-    private FileReaderInterface $fileReader;
+    private JobsService $jobsService;
+
     public function __construct(
         JobsRepository $jobsRepository,
         CompanyRepository $companyRepository,
         JobValidator $jobValidator,
-        FileReaderInterface $fileReader
+        JobsService $jobsService
     ) {
         $this->jobsRepository = $jobsRepository;
         $this->companyRepository = $companyRepository;
         $this->jobValidator = $jobValidator;
-        $this->fileReader = $fileReader;
+        $this->jobsService = $jobsService;
     }
 
-    public function test():JsonResponse
+    public function bulk(): JsonResponse
     {
-
-        print_r($this->fileReader->getData());
+        try {
+            $this->jobsService->bulk();
+        } catch (InvalidArgumentException $exception) {
+            echo $exception;
+        }
 
         return new JsonResponse('ok');
     }

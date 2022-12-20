@@ -95,6 +95,6 @@ home:
     controller: App\Controller\HomeController::loadTemplate
 
 jobs_test:
-    path: /jobs/test
-    controller: App\Controller\JobController::test
-    methods: GET
+    path: /jobs/bulk
+    controller: App\Controller\JobController::bulk
+    methods: POST
