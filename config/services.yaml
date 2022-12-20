@@ -34,3 +34,5 @@ services:
             - '@logger'
             - '@App\Service\File\FileReaderExcell'
             - '@App\Validators\Job\JobBulkValidator'
+            - '@App\Repository\JobsRepository'
+            - '@App\Repository\CompanyRepository'
