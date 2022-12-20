@@ -8,6 +8,8 @@ use App\Constants\JobsConstants;
 
 class JobBulkValidator implements ValidatorInterface
 {
+    private string $errorMessage;
+
     private function nameIsValid(string $name): bool
     {
         return ($name != null && strlen($name) >= 2);
@@ -57,16 +59,38 @@ class JobBulkValidator implements ValidatorInterface
 
     public function isValid(array $data): bool
     {
+        $this->errorMessage = '';
+
         if (!$this->paramsAreValid($data)) {
+            $this->errorMessage = "Params name are not valid";
             return false;
         }
 
-        return (
-            $this->nameIsValid($data['name']) &&
-            $this->descriptionIsValid($data['description']) &&
-            $this->companyIdIsValid($data['company_id']) &&
-            $this->activeIsValid($data['active']) &&
-            $this->priorityIsValid($data['priority'])
-        );
+        if (!$this->nameIsValid($data['name'])) {
+            $this->errorMessage = $this->errorMessage . "Invalid name\n";
+        }
+
+        if (!$this->descriptionIsValid($data['description'])) {
+            $this->errorMessage = $this->errorMessage . "Invalid description\n";
+        }
+
+        if (!$this->companyIdIsValid($data['company_id'])) {
+            $this->errorMessage = $this->errorMessage . "Invalid company id\n";
+        }
+
+        if (!$this->activeIsValid($data['active'])) {
+            $this->errorMessage = $this->errorMessage . "Invalid active\n";
+        }
+
+        if (!$this->priorityIsValid($data['priority'])) {
+            $this->errorMessage = $this->errorMessage . "Invalid priority\n";
+        }
+
+        return $this->errorMessage == '';
+    }
+
+    public function getErrorMessage(): string
+    {
+        return $this->errorMessage;
     }
 }

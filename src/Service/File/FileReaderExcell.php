@@ -50,13 +50,13 @@ class FileReaderExcell implements FileReaderInterface
         $jobs = [];
 
         for ($row = 2; $row < $numberOfJobs; $row++) {
-            $columnArray = $this->getRowArray($row);
+            $rowArray = $this->getRowArray($row);
 
-            $jobName = $columnArray[0];
-            $jobDescription = $columnArray[1];
-            $jobCompanyId = $columnArray[2];
-            $jobActive = $columnArray[3];
-            $jobPriority = $columnArray[4];
+            $jobName = $rowArray[0];
+            $jobDescription = $rowArray[1];
+            $jobCompanyId = $rowArray[2];
+            $jobActive = $rowArray[3];
+            $jobPriority = $rowArray[4];
 
             $jobs[] = [
 
@@ -68,6 +68,6 @@ class FileReaderExcell implements FileReaderInterface
             ];
         }
 
-        return $jobs;
+        return ["jobs" => $jobs];
     }
 }

@@ -50,12 +50,19 @@ class JobController extends AbstractController
     public function bulk(): JsonResponse
     {
         try {
-            $this->jobsService->bulk();
-        } catch (InvalidArgumentException $exception) {
-            echo $exception;
-        }
+            $data = $this->jobsService->bulk();
 
-        return new JsonResponse('ok');
+            return new JsonResponse([
+
+                "total_jobs" => $data["total_jobs"],
+                "valid_jobs" => $data["valid_jobs"],
+                "invalid_jobs" => $data["invalid_jobs"]
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            return new JsonResponse([
+                "error" => $exception
+            ]);
+        }
     }
 
     /**

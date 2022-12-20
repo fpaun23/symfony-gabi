@@ -17,6 +17,10 @@ class JobsService
     private JobsRepository $jobsRepository;
     private CompanyRepository $companyRepository;
 
+    private int $totalJobs;
+    private int $validJobs;
+    private int $invalidJobs;
+
     public function __construct(
         LoggerInterface $logger,
         FileReaderInterface $fileReader,
@@ -29,25 +33,35 @@ class JobsService
         $this->jobBulkValidator = $jobBulkValidator;
         $this->jobsRepository = $jobsRepository;
         $this->companyRepository = $companyRepository;
+
+        $this->totalJobs = 0;
+        $this->validJobs = 0;
+        $this->invalidJobs = 0;
     }
 
-    public function bulk(): void
+    public function bulk(): array
     {
-        $data = $this->fileReader->getData();
+        $data = $this->fileReader->getData()['jobs'];
+
+        $this->totalJobs = sizeof($data);
 
         foreach ($data as $dataJob) {
             if ($this->jobBulkValidator->isValid($dataJob)) {
                 $company = $this->companyRepository->find($dataJob['company_id']);
 
                 if (!$this->jobBulkValidator->companyIsValid($company)) {
+                    $this->invalidJobs++;
+
                     $this->logger->error(
                         "Error",
                         [
-                            json_encode("Company does not exist")
+                            json_encode("Company with id " . $dataJob['company_id'] . " does not exist")
                         ]
                     );
                 } else {
                     // we can create and add this job
+
+                    $this->validJobs++;
 
                     $job = new Jobs();
 
@@ -76,13 +90,22 @@ class JobsService
                     );
                 }
             } else {
+                $this->invalidJobs++;
+
                 $this->logger->error(
                     "Error",
                     [
-                        json_encode("Invalid job")
+                        json_encode($this->jobBulkValidator->getErrorMessage())
                     ]
                 );
             }
         }
+
+        return [
+
+            "total_jobs" => $this->totalJobs,
+            "valid_jobs" => $this->validJobs,
+            "invalid_jobs" => $this->invalidJobs
+        ];
     }
 }
