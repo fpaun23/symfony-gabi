@@ -28,11 +28,3 @@ services:
             - '@logger'
             - '@App\Service\DataValidatorContact'
           # - '@App\Service\DataValidatorContact2'
-
-    App\Service\Jobs\JobsService:
-        arguments:
-            - '@logger'
-            - '@App\Service\File\FileReaderExcell'
-            - '@App\Validators\Job\JobBulkValidator'
-            - '@App\Repository\JobsRepository'
-            - '@App\Repository\CompanyRepository'

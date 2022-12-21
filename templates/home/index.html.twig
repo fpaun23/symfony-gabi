@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CompanyController!{% endblock %}
+{% block title %}Hello HomeController!{% endblock %}
 
 {% block body %}
 <style>
@@ -10,13 +10,9 @@
 
 <div class="example-wrapper">
 
-    <h1>Company</h1>
-
+    <a href = "{{ path('company') }}">Company</a>
     <br>
-
-    {% if form_company is defined and form_company is not null %}
-        {{ form(form_company) }}
-    {% endif %}
+    <a href = "{{ path('contact') }}">Contact</a>
 
 </div>
 {% endblock %}
