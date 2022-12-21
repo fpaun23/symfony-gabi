@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Jobs;
 use App\Repository\CompanyRepository;
 use App\Repository\JobsRepository;
+use App\Service\Jobs\JobsService;
 use App\Validators\JobValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
@@ -31,14 +32,42 @@ class JobController extends AbstractController
      * @param CompanyRepository $companyRepository
      * @param JobValidator $jobValidator
      */
+
+    private JobsService $jobsService;
+
     public function __construct(
         JobsRepository $jobsRepository,
         CompanyRepository $companyRepository,
-        JobValidator $jobValidator
+        JobValidator $jobValidator,
+        JobsService $jobsService
     ) {
         $this->jobsRepository = $jobsRepository;
         $this->companyRepository = $companyRepository;
         $this->jobValidator = $jobValidator;
+        $this->jobsService = $jobsService;
+    }
+
+    public function bulk(Request $request): JsonResponse
+    {
+        try {
+            $mandatoryParams = [
+                'delete' => $request->get('delete'),
+                'update' => $request->get('update')
+            ];
+
+            $data = $this->jobsService->bulk($mandatoryParams);
+
+            return new JsonResponse([
+
+                "total_jobs" => $data["total_jobs"],
+                "valid_jobs" => $data["valid_jobs"],
+                "invalid_jobs" => $data["invalid_jobs"]
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            return new JsonResponse([
+                "error" => $exception->getMessage()
+            ]);
+        }
     }
 
     /**

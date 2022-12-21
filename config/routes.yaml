@@ -46,7 +46,6 @@ jobs:
   path: /jobs
   controller: App\Controller\JobController::loadTemplate
 
-
 jobs_add:
   path: /jobs/add
   controller: App\Controller\JobController::add
@@ -94,3 +93,8 @@ contact_add:
 home:
     path: /home
     controller: App\Controller\HomeController::loadTemplate
+
+jobs_test:
+    path: /jobs/bulk
+    controller: App\Controller\JobController::bulk
+    methods: POST
