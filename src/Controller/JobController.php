@@ -47,10 +47,15 @@ class JobController extends AbstractController
         $this->jobsService = $jobsService;
     }
 
-    public function bulk(): JsonResponse
+    public function bulk(Request $request): JsonResponse
     {
         try {
-            $data = $this->jobsService->bulk();
+            $mandatoryParams = [
+                'delete' => $request->get('delete'),
+                'update' => $request->get('update')
+            ];
+
+            $data = $this->jobsService->bulk($mandatoryParams);
 
             return new JsonResponse([
 
@@ -60,7 +65,7 @@ class JobController extends AbstractController
             ]);
         } catch (InvalidArgumentException $exception) {
             return new JsonResponse([
-                "error" => $exception
+                "error" => $exception->getMessage()
             ]);
         }
     }

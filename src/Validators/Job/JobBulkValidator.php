@@ -89,6 +89,16 @@ class JobBulkValidator implements ValidatorInterface
         return $this->errorMessage == '';
     }
 
+    public function updateIsValid($update): bool
+    {
+        return ($update == 1 || $update == 0);
+    }
+
+    public function deleteIsValid($delete): bool
+    {
+        return ($delete == 1 || $delete == 0);
+    }
+
     public function getErrorMessage(): string
     {
         return $this->errorMessage;

@@ -7,6 +7,7 @@ use App\Repository\CompanyRepository;
 use App\Repository\JobsRepository;
 use App\Service\File\FileReaderInterface;
 use App\Validators\Job\JobBulkValidator;
+use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 
 class JobsService
@@ -37,12 +38,21 @@ class JobsService
         $this->totalJobs = 0;
         $this->validJobs = 0;
         $this->invalidJobs = 0;
+
+        $this->update = 0;
+        $this->delete = 0;
     }
 
-    public function bulk(): array
+    public function bulk($mandatoryParams): array
     {
-        $data = $this->fileReader->getData()['jobs'];
+        if ($this->jobBulkValidator->deleteIsValid($mandatoryParams['delete'])) {
+            $this->delete = $mandatoryParams['delete'];
+        }
+        if ($this->jobBulkValidator->updateIsValid($mandatoryParams['update'])) {
+            $this->update = $mandatoryParams['update'];
+        }
 
+        $data = $this->fileReader->getData()['jobs'];
         $this->totalJobs = sizeof($data);
 
         foreach ($data as $dataJob) {
