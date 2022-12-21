@@ -2,58 +2,244 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Company;
-use App\Form\CompanyType;
-use Psr\Log\LoggerInterface;
+use App\Repository\CompanyRepository;
+use App\Validators\CompanyValidator;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Form\Exception\InvalidArgumentException;
 
 class CompanyController extends AbstractController
 {
-    private LoggerInterface $log;
-
-    public function __construct(LoggerInterface $log)
-    {
-        $this->log = $log;
-    }
+    /**
+     * @var CompanyRepository
+     */
+    private CompanyRepository $companyRepository;
 
     /**
-     * @return Response
+     * @var CompanyValidator
      */
-    public function loadTemplate(): Response
+    private CompanyValidator $companyValidator;
+
+    /**
+     * @param CompanyRepository $companyRepository
+     * @param CompanyValidator $companyValidator
+     */
+    public function __construct(CompanyRepository $companyRepository, CompanyValidator $companyValidator)
     {
-        return $this->render('company/index.html.twig');
+        $this->companyRepository = $companyRepository;
+        $this->companyValidator = $companyValidator;
     }
 
     /**
      * @param Request $request
-     * @return Response
+     * @return JsonResponse
      */
-    public function add(Request $request): Response
+    public function add(Request $request): JsonResponse
     {
-        $company = new Company();
-        $form = $this->createForm(CompanyType::class, $company);
+        $companyName = $request->get('name');
 
-        $form->handleRequest($request);
+        try {
+            $this->companyValidator->nameIsValid($companyName);
+            $company = new Company();
+            $company->setName($companyName);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $company = $form->getData();
+            $this->companyRepository->save($company);
 
-            $company_name = $company->getName();
-            $company_description = $company->getDescription();
+            return new JsonResponse([
+                'results' => [
 
-            $this->log->notice(
-                "Submission Successful",
-                [json_encode(['name' => $company_name, 'description' => $company_description])]
-            );
+                    "error" => false,
+                    "company" => [
 
-            return $this->redirectToRoute('company_add');
+                        "id" => $company->getId(),
+                        "name" => $company->getName()
+                    ]
+                ]
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function list(): JsonResponse
+    {
+        $listOfCompanies = $this->companyRepository->findAll();
+
+        $listOfNamesCompanies = [];
+
+        foreach ($listOfCompanies as $company) {
+            $listOfNamesCompanies[] = $company->getName();
         }
 
-        return $this->render('company/index.html.twig', [
+        return new JsonResponse(['list_of_companies' => $listOfNamesCompanies]);
+    }
 
-            'form_company' => $form->createView()
-        ]);
+    /**
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function update(int $id, Request $request): JsonResponse
+    {
+        try {
+            $params = $request->query->all();
+
+            $this->companyValidator->idIsValid($id);
+            $this->companyValidator->nameIsValid($params['name']);
+            $this->companyRepository->update($id, $params);
+
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "company" => [
+
+                        "id" => $id,
+                        "name" => $params['name']
+                    ]
+                ]
+            ]);
+        } catch (\InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function delete(int $id): JsonResponse
+    {
+        try {
+            $this->companyValidator->idIsValid($id);
+
+            $deletedCompany = $this->companyRepository->find($id);
+
+            if ($deletedCompany == null) {
+                throw new InvalidArgumentException("Company with $id doesn t exist");
+            }
+
+            $companyId = $deletedCompany->getId();
+
+            $this->companyRepository->remove($deletedCompany);
+
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "company" => [
+
+                        "id" => $companyId,
+                        "name" => $deletedCompany->getName()
+                    ]
+                ]
+            ]);
+        } catch (\InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function getCompanyById(int $id): JsonResponse
+    {
+        try {
+            $this->companyValidator->idIsValid($id);
+
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "company_name" => $this->companyRepository->getById($id)
+                ]
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * @param string $name
+     * @return JsonResponse
+     */
+    public function getCompanyByName(string $name): JsonResponse
+    {
+        try {
+            $this->companyValidator->nameIsValid($name);
+
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "company_name" => $this->companyRepository->getByName($name)
+                ]
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * @param string $name
+     * @return JsonResponse
+     */
+    public function getCompanyByLikeName(string $name): JsonResponse
+    {
+        try {
+            $this->companyValidator->nameIsValid($name);
+
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => false,
+                    "company_name" => $this->companyRepository->getByLikeName($name)
+                ]
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'results' => [
+
+                    "error" => true,
+                    "message" => $exception->getMessage()
+                ]
+            ]);
+        }
     }
 }

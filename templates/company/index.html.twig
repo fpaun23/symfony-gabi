@@ -9,14 +9,12 @@
 </style>
 
 <div class="example-wrapper">
+    <h1>Hello {{ controller_name }}! ✅</h1>
 
-    <h1>Company</h1>
-
-    <br>
-
-    {% if form_company is defined and form_company is not null %}
-        {{ form(form_company) }}
-    {% endif %}
-
+    This friendly message is coming from:
+    <ul>
+        <li>Your controller at <code><a href="{{ 'C:/Users/TC/Desktop/symfony/symfony-gabi/src/Controller/CompanyController.php'|file_link(0) }}">src/Controller/CompanyController.php</a></code></li>
+        <li>Your template at <code><a href="{{ 'C:/Users/TC/Desktop/symfony/symfony-gabi/templates/company/index.html.twig'|file_link(0) }}">templates/company/index.html.twig</a></code></li>
+    </ul>
 </div>
 {% endblock %}
