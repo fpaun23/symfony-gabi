@@ -36,3 +36,15 @@ services:
             - '@App\Validators\Job\JobBulkValidator'
             - '@App\Repository\JobsRepository'
             - '@App\Repository\CompanyRepository'
+            -
+    App\Command\BulkUpdateCommand:
+        tags:
+            - { name: 'console.command', command: 'app:update' }
+
+    App\Command\BulkDeleteCommand:
+        tags:
+            - { name: 'console.command', command: 'app:delete' }
+
+    App\Command\BulkCommand:
+        tags:
+            - { name: 'console.command', command: 'app:default' }
