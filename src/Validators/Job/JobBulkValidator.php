@@ -5,6 +5,7 @@ namespace App\Validators\Job;
 use App\Entity\Company;
 use App\Validators\ValidatorInterface;
 use App\Constants\JobsConstants;
+use App\Repository\CompanyRepository;
 
 class JobBulkValidator implements ValidatorInterface
 {
@@ -52,7 +53,7 @@ class JobBulkValidator implements ValidatorInterface
         return true;
     }
 
-    public function companyIsValid(?Company $company): bool
+    private function companyIsValid(?Company $company): bool
     {
         return ($company !== null);
     }
@@ -86,21 +87,20 @@ class JobBulkValidator implements ValidatorInterface
             $this->errorMessage = $this->errorMessage . "Invalid priority\n";
         }
 
+        if (!$this->companyIsValid($data['company'])) {
+            $this->errorMessage = $this->errorMessage . "Company with id " . $data["company_id"] . " does not exist\n";
+        }
+
         return $this->errorMessage == '';
-    }
-
-    public function updateIsValid($update): bool
-    {
-        return ($update == 1 || $update == 0);
-    }
-
-    public function deleteIsValid($delete): bool
-    {
-        return ($delete == 1 || $delete == 0);
     }
 
     public function getErrorMessage(): string
     {
         return $this->errorMessage;
+    }
+
+    public function notMandatoryParamIsValid($key, $params): bool
+    {
+        return array_key_exists($key, $params);
     }
 }

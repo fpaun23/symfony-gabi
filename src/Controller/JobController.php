@@ -47,15 +47,10 @@ class JobController extends AbstractController
         $this->jobsService = $jobsService;
     }
 
-    public function bulk(Request $request): JsonResponse
+    public function bulk(): JsonResponse
     {
         try {
-            $mandatoryParams = [
-                'delete' => $request->get('delete'),
-                'update' => $request->get('update')
-            ];
-
-            $data = $this->jobsService->bulk($mandatoryParams);
+            $data = $this->jobsService->bulk();
 
             return new JsonResponse([
 

@@ -7,7 +7,6 @@ use App\Repository\CompanyRepository;
 use App\Repository\JobsRepository;
 use App\Service\File\FileReaderInterface;
 use App\Validators\Job\JobBulkValidator;
-use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 
 class JobsService
@@ -21,6 +20,9 @@ class JobsService
     private int $totalJobs;
     private int $validJobs;
     private int $invalidJobs;
+    private int $updatedJobs;
+    private int $addedJobs;
+    private int $deletedJobs;
 
     public function __construct(
         LoggerInterface $logger,
@@ -38,70 +40,37 @@ class JobsService
         $this->totalJobs = 0;
         $this->validJobs = 0;
         $this->invalidJobs = 0;
-
-        $this->update = 0;
-        $this->delete = 0;
     }
 
-    public function bulk($mandatoryParams): array
+    public function createJob($dataJob): Jobs
     {
-        if ($this->jobBulkValidator->deleteIsValid($mandatoryParams['delete'])) {
-            $this->delete = $mandatoryParams['delete'];
-        }
-        if ($this->jobBulkValidator->updateIsValid($mandatoryParams['update'])) {
-            $this->update = $mandatoryParams['update'];
-        }
+        $job = new Jobs();
 
-        $data = $this->fileReader->getData()['jobs'];
+        $job->setName($dataJob['name']);
+        $job->setDescription($dataJob['description']);
+        $job->setPriority($dataJob['priority']);
+        $job->setActive($dataJob['active']);
+        $job->setCompany($dataJob['company']);
+        $job->setCreatedAt(new \DateTime("now"));
+
+        return $job;
+    }
+
+    private function getValidData($data): array
+    {
         $this->totalJobs = sizeof($data);
+        $this->validJobs = 0;
+        $this->invalidJobs = 0;
+        $jobs = [];
 
         foreach ($data as $dataJob) {
+            $dataJob['company'] = $this->companyRepository->find($dataJob['company_id']);
+
             if ($this->jobBulkValidator->isValid($dataJob)) {
-                $company = $this->companyRepository->find($dataJob['company_id']);
-
-                if (!$this->jobBulkValidator->companyIsValid($company)) {
-                    $this->invalidJobs++;
-
-                    $this->logger->error(
-                        "Error",
-                        [
-                            json_encode("Company with id " . $dataJob['company_id'] . " does not exist")
-                        ]
-                    );
-                } else {
-                    // we can create and add this job
-
-                    $this->validJobs++;
-
-                    $job = new Jobs();
-
-                    $job->setName($dataJob['name']);
-                    $job->setDescription($dataJob['description']);
-                    $job->setPriority($dataJob['priority']);
-                    $job->setActive($dataJob['active']);
-                    $job->setCompany($company);
-                    $job->setCreatedAt(new \DateTime("now"));
-
-                    $this->jobsRepository->save($job);
-
-                    $this->logger->notice(
-                        "Successful",
-                        [
-                            json_encode(
-                                [
-                                    'name' => $dataJob['name'],
-                                    'description' => $dataJob['description'],
-                                    'company_id' => $dataJob['company_id'],
-                                    'active' => $dataJob['active'],
-                                    'priority' => $dataJob['priority']
-                                ]
-                            )
-                        ]
-                    );
-                }
+                $this->validJobs++;
+                $jobs[] = $dataJob;
             } else {
                 $this->invalidJobs++;
-
                 $this->logger->error(
                     "Error",
                     [
@@ -111,11 +80,143 @@ class JobsService
             }
         }
 
+        return $jobs;
+    }
+
+    private function jobIsInDB($dataJob): ?Jobs
+    {
+        return $this->jobsRepository->findOneBy(
+            [
+                'name' => $dataJob['name'],
+                'company' => $dataJob['company']
+            ]
+        );
+    }
+
+    private function bulkUpdate($jobs): array
+    {
+        $updatedJobs = 0;
+        $addedJobs = 0;
+
+        foreach ($jobs as $dataJob) {
+            $jobFromDB = $this->jobIsInDB($dataJob);
+
+            if ($jobFromDB === null) {
+                // need to add job
+                $addedJobs++;
+                $this->jobsRepository->save($this->createJob($dataJob));
+            } else {
+                // need to update job
+                $updatedJobs++;
+                $this->jobsRepository->update($jobFromDB->getId(), $dataJob);
+            }
+        }
+
         return [
 
+            "added_jobs" => $addedJobs,
+            "updated_jobs" => $updatedJobs
+        ];
+    }
+
+    private function bulkDelete($jobs): array
+    {
+        $deletedJobs = 0;
+
+        foreach ($jobs as $dataJob) {
+            $jobFromDB = $this->jobIsInDB($dataJob);
+
+            if ($jobFromDB !== null) {
+                // need to add job
+                $deletedJobs++;
+                $this->jobsRepository->remove($jobFromDB);
+            }
+        }
+
+        return [
+
+            "deleted_jobs" => $deletedJobs
+        ];
+    }
+
+    private function bulkAdd($jobs): array
+    {
+        $addedJobs = 0;
+
+        foreach ($jobs as $dataJob) {
+            $addedJobs++;
+            $this->jobsRepository->save($this->createJob($dataJob));
+        }
+
+        return [
+
+            "added_jobs" => $addedJobs
+        ];
+    }
+
+    public function bulk($notMandatoryParams): array
+    {
+        $data = $this->fileReader->getData()['jobs'];
+
+        $bulkDeleteState = false;
+        $bulkUpdateState = false;
+
+        $addedJobs = 0;
+        $updatedJobs = 0;
+        $deletedJobs = 0;
+
+        if ($this->jobBulkValidator->notMandatoryParamIsValid("delete", $notMandatoryParams)) {
+            $bulkDeleteState = true;
+            $deletedJobs = $this->bulkDelete($this->getValidData($data))["deleted_jobs"];
+        }
+
+        if ($this->jobBulkValidator->notMandatoryParamIsValid("update", $notMandatoryParams)) {
+            $bulkUpdateState = true;
+            $bulkUpdate = $this->bulkUpdate($this->getValidData($data));
+
+            $updatedJobs = $bulkUpdate["updated_jobs"];
+            $addedJobs = $bulkUpdate["added_jobs"];
+        }
+
+        if (!$bulkDeleteState && !$bulkUpdateState) {
+            $addedJobs = $this->bulkAdd($this->getValidData($data))["added_jobs"];
+        }
+
+        if ($bulkDeleteState && $bulkUpdateState) {
+            return [
+                "total_jobs" => $this->totalJobs,
+                "valid_jobs" => $this->validJobs,
+                "invalid_jobs" => $this->invalidJobs,
+                "deleted_jobs" => $deletedJobs,
+                "updated_jobs" => $updatedJobs,
+                "added_jobs" => $addedJobs
+            ];
+        }
+
+        if ($bulkDeleteState) {
+            return [
+                "total_jobs" => $this->totalJobs,
+                "valid_jobs" => $this->validJobs,
+                "invalid_jobs" => $this->invalidJobs,
+                "deleted_jobs" => $deletedJobs
+            ];
+        }
+
+        if ($bulkUpdateState) {
+            return [
+                "total_jobs" => $this->totalJobs,
+                "valid_jobs" => $this->validJobs,
+                "invalid_jobs" => $this->invalidJobs,
+                "updated_jobs" => $updatedJobs,
+                "added_jobs" => $addedJobs
+            ];
+        }
+
+        return [
             "total_jobs" => $this->totalJobs,
             "valid_jobs" => $this->validJobs,
-            "invalid_jobs" => $this->invalidJobs
+            "invalid_jobs" => $this->invalidJobs,
+            "added_jobs" => $addedJobs
         ];
     }
 }
