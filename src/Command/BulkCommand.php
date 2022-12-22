@@ -35,11 +35,7 @@ class BulkCommand extends Command
             $arg1 => $arg1,
             $arg2 => $arg2
         ];
-
-        foreach ($notMandatoryParams as $key => $value) {
-            echo $key . " " . $value . "\n";
-        }
-
+        
         $data = $this->jobsService->bulk($notMandatoryParams);
 
         foreach ($data as $key => $job) {
